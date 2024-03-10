@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote Your Vote</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+    <link rel=""stylesheet" href="style.css">
+     <style>  #map { height: 500px; }</style>
+</head>
+<body>
+    <h1>Live Voting Location Centers</h1>
+    <div id="map"></div>
+
+
+    <script>
+        var map = L.map('map').setView([19.0760, 72.8777], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+
+    var places = [
+    { name: 'Place 1', latlng: [19.0758, 72.8772] },   // Central Mumbai
+    { name: 'Place 2', latlng: [19.0890, 72.8764] },   // Northern Mumbai
+    { name: 'Place 3', latlng: [19.0635, 72.8925] },   // Southern Mumbai
+    { name: 'Place 4', latlng: [19.0936, 72.8876] },   // Northern Mumbai
+    { name: 'Place 5', latlng: [19.0587, 72.8759] }    // Southern Mumbai
+];
+
+
+    
+    places.forEach(place => {
+            var marker = L.marker(place.latlng).addTo(map);
+            marker.bindPopup('<b>' + place.name + '</b><br>Click to view on Google Maps');
+            marker.on('click', function() {
+                var url = 'https://www.google.com/maps/search/?api=1&query=' + place.latlng[0] + ',' + place.latlng[1];
+                window.open(url, '_blank');
+            });
+    });
+
+    navigator.geolocation.watchPosition(success,error);
+    let marker,circle;
+
+    function success(pos){
+        const lat =pos.coords.latitude;
+        const long = pos.coords.longitude;
+        const accuracy = pos.coords.accuracy;
+
+        if(marker){
+            map.removeLayer(marker);
+            map.removeLayer(circle);
+        }
+
+        L.marker([lat,long]).addTo(map);
+        L.circle([lat,long],{
+            color: 'green',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: accuracy
+        }).addTo(map);
+        if(!zoomed){
+            zoomed=map.fitBounds(circle.getBounds());
+        }
+
+        map.setView([lat,long]);
+    }
+
+    function error(err){
+        console.warn('ERROR(' + err.code + '): ' + err.message);
+    }
+       
+    </script>
+   
+   
+    
+</body>
+</html>
